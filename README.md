@@ -1,4 +1,4 @@
-# noFishingAllowed
+# chrome extension noFishingAllowed
 Chinese people like to watch certain entertainment websites at work. This plugin can prohibit browsing during working hours and supports custom website addresses and commuting times
 
 ### As long as you access a disabled website, the plugin will immediately shut down the website you have opened.
