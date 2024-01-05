@@ -1,6 +1,15 @@
-chrome.runtime.onInstalled.addListener(async (opt) => {
+/*
+ * @Author: cwd
+ * @Date: 2024-01-03 14:55:30
+ * @LastEditors: cwd
+ * @LastEditTime: 2024-01-05 10:22:33
+ * @FilePath: \chromepie-nozhihu\no-fishing-allowed\src\background\index.ts
+ * @Description: 
+ * 
+ * Copyright (c) 2024 by cwd, All Rights Reserved. 
+ */
+chrome.runtime.onInstalled.addListener(async () => {
 
-    await chrome.storage.local.clear()
     const initStorageCache = await chrome.storage.sync.get();
     if (!initStorageCache.urls) {
         const urls = ["www.zhihu.com"];
@@ -43,7 +52,7 @@ chrome.runtime.onInstalled.addListener(async (opt) => {
 
     const getToday = () => {
         const today = new Date();
-        const dayOfWeek = today.getDay() + 1;
+        const dayOfWeek = today.getDay();
         return dayOfWeek
     }
     const isCycle = async () => {
@@ -51,23 +60,20 @@ chrome.runtime.onInstalled.addListener(async (opt) => {
         return cycle.includes(getToday())
     }
 
-    chrome.tabs.onUpdated.addListener((tabId, _changeInfo, tab) => {
-        setTimeout(async () => {
-            if (tab && tabId) {
-                if (tab.status === 'loading' && typeof tab.url !== 'undefined') {
-                    const is = matchUrl(tab.url)
-                    if (is && await isCurrentTimeInTimeRange() && await isCycle()) {
-                        chrome.tabs.remove(tabId)
-                        return false
-                    }
-                }
-            }
-        }, 10);
-        return false
+    chrome.tabs.onUpdated.addListener( async (tabId, _changeInfo, tab) => {
+
+        const existingTab = await new Promise(resolve => chrome.tabs.get(tabId, resolve));
+
+        if (tab && tab.status === 'loading' && typeof tab.url !== 'undefined' && existingTab &&
+            await isCurrentTimeInTimeRange() && await isCycle() && matchUrl(tab.url)) {
+            chrome.tabs.remove(tabId);
+        }
+
     })
+
 
 })
 
-// console.log('hello world from background')
+
 
 export { }
